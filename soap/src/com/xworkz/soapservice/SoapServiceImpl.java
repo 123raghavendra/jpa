@@ -67,6 +67,8 @@ public class SoapServiceImpl implements SoapService {
 	public void deleteById(int id) {
 		if (id > 0) {
 			this.repo.deleteById(id);
+			
+			
 		}
 	}
 
