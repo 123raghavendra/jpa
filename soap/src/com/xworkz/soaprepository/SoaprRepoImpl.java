@@ -1,10 +1,13 @@
 package com.xworkz.soaprepository;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
+import javax.persistence.PersistenceException;
+import javax.transaction.Transaction;
 
 import org.hibernate.service.spi.Manageable;
 
@@ -22,11 +25,49 @@ public class SoaprRepoImpl implements SoapRepo {
 
 		EntityManager createEntityManager = factory.createEntityManager();
 		EntityTransaction transaction = createEntityManager.getTransaction();
+		
+		try {
 		transaction.begin();
 		createEntityManager.persist(entity);
+		
+		
 		transaction.commit();
+		
+		}catch(PersistenceException exception) {
+			
+			exception.printStackTrace();
+			//transaction.rollback();
+		}
+		
+		
+	finally {
 		createEntityManager.close();
+		}
+	
 		return true;
+	}
+
+// save the details by  list and add method is used
+	@Override
+	public void save(List<SoapEntity> list) {
+		EntityManager manager = factory.createEntityManager();
+		EntityTransaction transaction = manager.getTransaction();
+
+		try {
+			transaction.begin();
+			for (SoapEntity entity : list) {
+				manager.persist(entity);
+			}
+			transaction.commit();
+		}
+		catch (PersistenceException e) {
+			transaction.rollback();
+		}
+		finally {
+
+		}
+
+		SoapRepo.super.save(list);
 	}
 
 // read operation
@@ -34,9 +75,10 @@ public class SoaprRepoImpl implements SoapRepo {
 	public Optional<SoapEntity> findById(int id) {
 		EntityManager manager = factory.createEntityManager();
 		SoapEntity find = manager.find(SoapEntity.class, id);
+
 		if (find != null) {
 			return Optional.of(find);
-		}
+			}
 		return Optional.empty();
 	}
 
@@ -46,32 +88,54 @@ public class SoaprRepoImpl implements SoapRepo {
 	public void updateBrandById(int id, String brand) {
 		EntityManager manager = factory.createEntityManager();
 		EntityTransaction transaction = manager.getTransaction();
-		transaction.begin();
-		SoapEntity find = manager.find(SoapEntity.class, id);
+		try {
+			transaction.begin();
 
-		if (find != null) {
-			find.setBrand(brand);
+			SoapEntity find = manager.find(SoapEntity.class, id);
 
-			manager.persist(find);
+			if (find != null) {
+				find.setBrand(brand);
+				manager.persist(find);
+			}
 			transaction.commit();
-			manager.close();
-
+		} catch (PersistenceException e) {
+			e.printStackTrace();
+			transaction.rollback();
+	
 		}
+
+		finally {
+			manager.close();
+		}
+
 	}
+
 // delete method impl
 	@Override
 	public void deleteById(int id) {
 		EntityManager createEntityManager = factory.createEntityManager();
 		EntityTransaction transaction = createEntityManager.getTransaction();
+	
+		try {
 		transaction.begin();
 		SoapEntity find = createEntityManager.find(SoapEntity.class, id);
 		if (find != null) {
 			find.setId(id);
 			createEntityManager.remove(find);
-			transaction.commit();
+		
+		}
+		transaction.commit();
+		}	
+		catch(PersistenceException persistenceException){
+			persistenceException.printStackTrace();
+			transaction.rollback();
+		}
+			
+		finally {
 			createEntityManager.close();
 		}
 
-	}
+	
 
+}
 }

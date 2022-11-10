@@ -1,6 +1,7 @@
 package com.xworkz.soapservice;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import com.xworkz.soapentity.SoapEntity;
@@ -48,6 +49,15 @@ public class SoapServiceImpl implements SoapService {
 	}
 
 	@Override
+	public void save(List<SoapEntity> list) {
+		System.out.println("running save method......");
+		if (list != null) {
+			this.repo.save(list);
+		}
+		SoapService.super.save(list);
+	}
+
+	@Override
 	public Optional<SoapEntity> findById(int id) {
 		if (id > 0) {
 			return this.repo.findById(id);
@@ -67,9 +77,9 @@ public class SoapServiceImpl implements SoapService {
 	public void deleteById(int id) {
 		if (id > 0) {
 			this.repo.deleteById(id);
-			
-			
+
 		}
+
 	}
 
 }

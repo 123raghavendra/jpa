@@ -24,7 +24,7 @@ public class SoapEntity {
 	private String brand;
 	@Column(name=" price")
 	private double price;
-	@Column(name= "date")
+	@Column(name= "validatyDate")
 	private LocalDate  validatyDate;
 	@Column(name = "companyLocation")
 	private String companyLocation;
